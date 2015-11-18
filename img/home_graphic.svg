@@ -1,0 +1,37 @@
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="350" height="542" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><defs class="svg-crowbar"></defs><defs class="svg-crowbar">
+<style type="text/css">
+
+@import url(http://fonts.googleapis.com/css?family=Lora|PT+Mono|Open+Sans:400,300);
+
+path {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+text {
+    font-family: "Lora", sans-serif;
+    font-weight: 400;
+    font-size: 28px;
+    fill: #fcfcfc;
+}
+
+.triangle.About text, .triangle.Blog text {
+    fill: #fcfcfc;
+    -moz-transition: fill 500ms;
+    -webkit-transition: fill 500ms;
+    -o-transition: fill 500ms;
+    transition: fill 500ms;
+}
+
+.triangle.About text:hover, .triangle.Blog text:hover {
+    fill: black;
+    -moz-transition: fill 500ms;
+    -webkit-transition: fill 500ms;
+    -o-transition: fill 500ms;
+    transition: fill 500ms;
+}
+</style>
+</defs><g transform="translate(40,20)" class="triangle MEPUKA"><text text-anchor="middle" transform="translate(83.33333333333333,83.33333333333333)">MEPUKA</text><path class="triangle-cap" d="M45,0L0,0L0,45"></path><path class="triangle-cap" d="M205,0L250,0L205,45"></path><path class="triangle-cap" d="M0,205L0,250L45,205"></path></g><g transform="translate(40,20)" class="triangle KESSY"><text text-anchor="middle" transform="translate(166.66666666666666,166.66666666666666)">KESSY</text><path class="triangle-cap" d="M205,250L250,250L250,205"></path><path class="triangle-cap" d="M45,250L0,250L45,205"></path><path class="triangle-cap" d="M250,45L250,0L205,45"></path></g><g transform="translate(40,20)" class="triangle About"><text text-anchor="middle" transform="translate(83.33333333333333,333.3333333333333)">About</text><path class="triangle-cap" d="M45,250L0,250L0,295"></path><path class="triangle-cap" d="M205,250L250,250L205,295"></path><path class="triangle-cap" d="M0,455L0,500L45,455"></path></g><g transform="translate(40,20)" class="triangle Blog"><text text-anchor="middle" transform="translate(166.66666666666666,416.6666666666667)">Blog</text><path class="triangle-cap" d="M205,500L250,500L250,455"></path><path class="triangle-cap" d="M45,500L0,500L45,455"></path><path class="triangle-cap" d="M250,295L250,250L205,295"></path></g></svg>

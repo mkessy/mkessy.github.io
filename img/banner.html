@@ -1,0 +1,68 @@
+
+<html class="mepuka-com">
+    <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="http://localhost:8008/node_modules/topojson/topojson.min.js"></script>
+    <script src="http://localhost:8008/node_modules/d3/d3.min.js"></script>
+    <style>
+
+        html {
+            min-width: 1040px;
+        }
+
+        .mepuka-com body {
+            background-color: #7E95B4;
+            font-family: "Lora", sans-serif;
+            margin: 1em auto 4em auto;
+            position: relative;
+            width: 960px;
+        }
+
+    </style>
+    <body>
+        <div class="chart"></div>
+        <script>
+            var margins = {top: 10, right: 0, left: 0, bottom: 10};
+
+            var width = 605-margins.right-margins.left,
+                height = 250-margins.top-margins.bottom;
+
+            var projection = d3.geo.mercator()
+                .scale(220000)
+                .center([37.351, -3.069])
+                .translate([width/6, height/2])
+                
+            var path = d3.geo.path()
+                .projection(projection);
+
+            var svg = d3.select(".chart").append("svg")
+                .attr("width", width+margins.left+margins.right)
+                .attr("height", height+margins.top+margins.bottom);
+
+                d3.json("kili.json", function(error, kili) {
+                    if(error){ console.log(error); }
+
+                    svg.selectAll("g")
+                        .data(["1912", "1992", "2011"])
+                    .enter().append("g")
+                        .attr("transform", function(d, i) { return "translate("+(i*(width/3)) + ",0)"; })
+                        .each(function(d) {
+                            d3.select(this).append("path")
+                                .datum(topojson.mesh(kili, kili["objects"]["kili_"+d]))
+                                .attr("class", "ice "+d)
+                                .attr("d", path)
+                                .attr("fill", "none")
+                                .attr("stroke", "white")
+                                .attr("stroke-width", "1.2px")
+                                .attr("line-join", "round")
+                        });
+
+                });
+
+        </script>
+    </body>
+
+</html>
+
+

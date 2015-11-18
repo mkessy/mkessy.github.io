@@ -1,0 +1,322 @@
+@import url(http://fonts.googleapis.com/css?family=Lora|PT+Mono|Open+Sans:400,300);
+
+path {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+/* top of the page, name and nav bar */
+ h1.name {
+  /*margin: auto;*/
+  text-align: center;
+ }
+
+div.name-container {
+    margin: 0px 0px 0px 0px;
+}
+
+div.nav-bar {
+  display:                 flex;
+  display:                 -webkit-flex; /* Safari */
+  flex-wrap:               wrap;
+  -webkit-flex-wrap:       wrap;         /* Safari */
+  justify-content:         center;
+  -webkit-justify-content: center;       /* Safari */
+}
+
+div.nav-item {
+  padding: 0px 10px 0px 10px;
+}
+
+div h3 {
+  text-align: center;
+}
+
+
+div.home-graphic {
+    width: 350px;
+    /*float: left;*/
+    /*border: 1px solid black;*/
+}
+
+
+
+div.gallery-middle {
+    /*float: left;*/
+    /*width: 605px;*/
+    /*border: 1px solid black;*/
+}
+
+div.banner {
+    margin: auto;
+    width: 100%;
+    /*margin: 30px 0px 0px 0px;*/
+    height: 250px;
+    /*width:  605px; */
+    border-bottom: 1px dashed white;
+    border-top: 1px dashed white;
+/*    border: 1px solid black;*/
+
+}
+
+div.nav-bar-blog {
+  border-bottom: 1px dashed white;
+}
+
+div.banner-img {
+    margin: auto;
+    width: 60%;
+    pointer-events: none;
+}
+
+object {
+  pointer-events: none;
+}
+
+div.recent-posts {
+    margin: 50px 0px 10px 0px;
+    height: 230px;
+    /*border: 1px solid black;*/
+}
+
+html {
+  min-width: 1040px;
+}
+
+.mepuka-com body {
+  background-color: #7E95B4;
+  font-family: "Lora", serif;
+  color: #fcfcfc;
+  margin: 1em auto 4em auto;
+  position: relative;
+  width: 960px;
+  /*border: 1px black solid;*/
+}
+
+.mepuka-com header,
+.mepuka-com footer,
+.mepuka-com h1,
+.mepuka-com h2,
+.mepuka-com h3,
+.mepuka-com h4 {
+  font-family: "Open Sans", sans-serif;
+}
+
+
+.mepuka-com h1,
+.mepuka-com h2,
+.mepuka-com h3,
+.mepuka-com h4 {
+  color: #fcfcfc;
+}
+
+.mepuka-com header,
+.mepuka-com footer {
+  color: #636363;
+}
+
+h1.name {
+  font-family: "Lora", serif;
+  color: #fcfcfc;
+}
+
+
+h1 {
+  font-size: 64px;
+  font-weight: 300;
+  letter-spacing: -2px;
+  margin: .3em 0 .1em 0;
+}
+
+h2 {
+  margin-top: 2em;
+}
+
+h1, h2 {
+  text-rendering: optimizeLegibility;
+}
+
+h2 a[name],
+h2 a[id] {
+  color: #ccc;
+  left: -20px;
+  position: absolute;
+  width: 740px;
+}
+
+header,
+footer {
+  font-size: small;
+}
+
+.mepuka-com header aside,
+.mepuka-com footer aside {
+  float: left;
+  margin-right: .5em;
+}
+
+.blog-footer {
+  margin-top: 50px;
+}
+
+.mepuka-com header aside:after,
+.mepuka-com footer aside:after {
+  padding-left: .5em;
+  content: "\b7";
+}
+
+footer {
+  margin-top: 8em;
+}
+
+h1 ~ aside {
+  font-size: small;
+  right: 0;
+  position: absolute;
+  width: 180px;
+}
+
+.attribution {
+  font-size: small;
+  margin-bottom: 2em;
+}
+
+body > p, li > p {
+  line-height: 1.5em;
+}
+
+body > p {
+  width: 720px;
+}
+
+body > blockquote {
+  width: 640px;
+}
+
+blockquote q {
+  display: block;
+  font-style: oblique;
+}
+
+li {
+  width: 680px;
+}
+
+a {
+  color: #fcfcfc;
+}
+
+a:hover {
+    color: black;
+    text-decoration: none;
+    -moz-transition: color 500ms;
+    -webkit-transition: color 500ms;
+    -o-transition: color 500ms;
+    transition: color 500ms;
+}
+
+a:not(:hover) {
+  text-decoration: none;
+}
+
+
+/* home page recent post list */
+.recent-posts {
+    margin-bottom: 15px;
+}
+.post .post-date {
+    font: 12px "Open Sans";
+    width: 120px;
+    margin-right: 50px;
+    }
+
+.post .post-container {
+  /*position: relative;
+  height: 30px;*/
+  display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;      /* TWEENER - IE 10 */
+  display: -webkit-flex;     /* NEW - Chrome */
+  display: flex;
+  -webkit-align-items: center;  
+  align-items: center;
+  }
+
+.post .post-title {
+    font-size: 24px;
+    /*width: 420px;*/
+    }
+.post .post-tags {
+    font-size: 12px;
+    font-style: oblique;
+    margin-left: 170px;
+}
+pre, code, textarea {
+  font-family: "Menlo", monospace;
+}
+
+code {
+  line-height: 1em;
+}
+
+textarea {
+  font-size: 100%;
+}
+
+body > pre {
+  border-left: solid 2px #D5B6B6;
+  padding-left: 18px;
+  margin: 2em 0 2em -20px;
+}
+
+.html .value,
+.javascript .string,
+.javascript .regexp {
+  color: #756bb1;
+}
+
+.html .tag,
+.css .tag,
+.javascript .keyword {
+  color: #3182bd;
+}
+
+.comment {
+  color: #636363;
+}
+
+.html .doctype,
+.javascript .number {
+  color: #31a354;
+}
+
+.html .attribute,
+.css .attribute,
+.javascript .class,
+.javascript .special {
+  color: #e6550d;
+}
+
+sup, sub {
+  line-height: 0;
+}
+
+q:before {
+  content: "“";
+}
+
+q:after {
+  content: "”";
+}
+
+blockquote:before {
+  position: absolute;
+  left: 2em;
+}
+
+blockquote:after {
+  position: absolute;
+}
