@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <title>Functional Programming Baby Steps Part One</title>
+  </head>
+  <body
+    class="antialiased font-sans flex flex-col min-h-screen sm:min-w-full md:min-w-full lg:min-w-full"
+  >
+    <div class="max-w-screen-sm mx-auto px-4 flex-grow">
+      <nav
+        class="mt-4 border-b-2 border-t-2 border-dashed border-curiosity-dirt"
+      >
+        
+<div class="font-black text-4xl text-curiosity-dirt">mepuka kessy</div>
+<div class="mt-2.5 mb-2.5 mx-auto flex justify-start space-x-2">
+    
+    <div class="text-curiosity-dirt hover:text-curiosity-magenta">
+
+        <a href="/blog.html" >
+            Code
+        </a>
+    </div>
+        
+    <div class="text-curiosity-dirt hover:text-curiosity-magenta">
+
+        <a href="/about.html" >
+            About
+        </a>
+    </div>
+        
+</div>
+      </nav>
+      <div class="mt-10 text-curiosity-dirt"><h1 class="text-lg font-semibold">Functional Programming Baby Steps Part One</h1>
+<p class="text-sm font-normal text-gray-500 my-2">
+  mepuka | 12 January 2022
+</p>
+
+<div class="prose mt-8"><p>One of the first issues I ran into as I began my journey into the world of TypeScript was the annoying issue of <a href="https://dev.to/jamesmh/unhealthy-code-null-checks-everywhere-2720">null checks</a>. On one hand the TypeScript compiler is reminding you of something important: “You might encounter a runtime error if you try and do something with this possibly null value.” On the other hand it can lead to some really ugly code where we need nested conditionals to ensure that the data we want to operate on actually exists as we expect it to.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">User</span> <span class="p">{</span> 
+  <span class="nl">id</span><span class="p">:</span> <span class="nx">number</span><span class="p">;</span>
+  <span class="nl">name</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+  <span class="nl">bio</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// this is allowed in TypeScript</span>
+<span class="kd">const</span> <span class="nx">newUser</span><span class="p">:</span> <span class="nx">User</span> <span class="o">=</span> <span class="p">{</span><span class="na">id</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span> <span class="na">name</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span> <span class="na">bio</span><span class="p">:</span> <span class="kc">null</span><span class="p">};</span>
+<span class="kd">let</span> <span class="nx">userBio</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+
+<span class="k">if</span><span class="p">(</span><span class="nx">newUser</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">id</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">userBio</span> <span class="o">=</span> <span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">userBio</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">N/A</span><span class="dl">"</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">useBio</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">N/A</span><span class="dl">"</span>
+    <span class="p">}</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">userBio</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">N/A</span><span class="dl">"</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>This is ugly, hard to read, and unsafe (eventually we’ll make a mistake or forget a conditional and something will blow up.) Now consider that this problem becomes even worse when performing routine operations such as fetching data from a remote API. What if we needed to fetch a list of users and process them in some way? Fetching remote data is an asynchronous task that is not guaranteed succeed. So now in addition to all the null checking we’ll need to check whether our fetch operation was even successful or if it returned an error.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// this code may blow up since not only may the fetch operation</span>
+<span class="c1">// fail but it could succeed and return a null newUsers array </span>
+<span class="kd">const</span> <span class="nx">newUsers</span><span class="p">:</span> <span class="nx">User</span><span class="p">[]</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fetchUsersFromAPI</span><span class="p">();</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">newUser</span> <span class="k">of</span> <span class="nx">newUsers</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">uploadUserBio</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="functional-programming-to-the-rescue">Functional Programming to the Rescue</h2>
+
+<p>Functional programming is useful here because it offers us a number of abstractions that force us to write code that accounts for cases where an operation fails or returns a value that may be null or undefined. (For all the following examples I’m going to be using the excellent functional programming library.) <a href="https://github.com/gcanti/fp-ts">fp-ts</a></p>
+
+<h3 id="the-option-type">The <code class="language-plaintext highlighter-rouge">Option</code> type</h3>
+<p>The option types helps us abstract the common case in which a computation may fail (or return null) <em>or</em> return a value of type A. In fp-ts it is represented by the sum type:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">type</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span> <span class="o">=</span>
+  <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">None</span><span class="dl">'</span> <span class="p">}</span> <span class="c1">// our operation failed</span>
+  <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Some</span><span class="dl">'</span><span class="p">;</span> <span class="nl">value</span><span class="p">:</span> <span class="nx">A</span> <span class="p">}</span> <span class="c1">// our operation succeeded and we have a value of type A</span>
+
+</code></pre></div></div>
+<p>Fp-ts provides us with a number of built-in methods for operating with this new type.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// construct for a null or none type</span>
+<span class="kd">const</span> <span class="nx">none</span><span class="p">:</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="nx">never</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">None</span><span class="dl">'</span> <span class="p">}</span>
+<span class="c1">//constructor for a value that actually exists</span>
+<span class="kd">const</span> <span class="nx">some</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">value</span><span class="p">:</span> <span class="nx">A</span><span class="p">):</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span> <span class="o">=&gt;</span> <span class="p">({</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Some</span><span class="dl">'</span><span class="p">,</span> <span class="nx">value</span> <span class="p">})</span>
+<span class="c1">//an operation to 'match' an expression </span>
+<span class="kd">const</span> <span class="nx">fold</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nx">A</span><span class="p">,</span> <span class="nx">R</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">fa</span><span class="p">:</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span><span class="p">,</span> <span class="nx">onNone</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">R</span><span class="p">,</span> <span class="nx">onSome</span><span class="p">:</span> <span class="p">(</span><span class="nx">a</span><span class="p">:</span> <span class="nx">A</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">R</span><span class="p">):</span> <span class="nx">R</span> <span class="o">=&gt;</span>
+  <span class="nx">fa</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">None</span><span class="dl">'</span> <span class="p">?</span> <span class="nx">onNone</span><span class="p">()</span> <span class="p">:</span> <span class="nx">onSome</span><span class="p">(</span><span class="nx">fa</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Wrapping a value in an <code class="language-plaintext highlighter-rouge">Option</code> forces us to deal with the case in which the value doesn’t exist or is not what we want.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// if our API had the following signature </span>
+<span class="c1">// (we'll learn later about how to implement this)</span>
+<span class="nx">declare</span> <span class="nx">fetchUsersFromAPI</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Option</span><span class="o">&lt;</span><span class="nx">User</span><span class="p">[]</span><span class="o">&gt;&gt;</span>
+
+<span class="c1">// then we're forced to 'unwrap' the Option and deal with the</span>
+<span class="c1">// case in which in may be null or an error</span>
+
+<span class="kd">const</span> <span class="nx">newUsers</span><span class="p">:</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="nx">User</span><span class="p">[]</span><span class="o">&gt;</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fetchUsersFromAPI</span><span class="p">();</span>
+
+<span class="nx">fold</span><span class="p">(</span>
+  <span class="nx">newUsers</span><span class="p">,</span>
+  <span class="p">()</span> <span class="o">=&gt;</span> <span class="dl">'</span><span class="s1">There are no users!</span><span class="dl">'</span><span class="p">,</span>
+  <span class="p">(</span><span class="nx">users</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">newUser</span> <span class="k">of</span> <span class="nx">users</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">uploadUserBio</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>So now the type system and anyone who wants to operate on the <code class="language-plaintext highlighter-rouge">newUsers</code> array will be forced to deal with the fact that <code class="language-plaintext highlighter-rouge">newUsers</code> may not exist.</p>
+
+<h3 id="the-either-type">The <code class="language-plaintext highlighter-rouge">Either</code> type</h3>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">type</span> <span class="nx">Either</span><span class="o">&lt;</span><span class="nx">L</span><span class="p">,</span> <span class="nx">A</span><span class="o">&gt;</span> <span class="o">=</span>
+  <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Left</span><span class="dl">'</span><span class="p">;</span> <span class="nl">left</span><span class="p">:</span> <span class="nx">L</span> <span class="p">}</span> <span class="c1">// holding a failure</span>
+  <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Right</span><span class="dl">'</span><span class="p">;</span> <span class="nl">right</span><span class="p">:</span> <span class="nx">A</span> <span class="p">}</span> <span class="c1">// holding a success</span>
+
+<span class="kd">const</span> <span class="nx">fold</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nx">L</span><span class="p">,</span> <span class="nx">A</span><span class="p">,</span> <span class="nx">R</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="nx">fa</span><span class="p">:</span> <span class="nx">Either</span><span class="o">&lt;</span><span class="nx">L</span><span class="p">,</span> <span class="nx">A</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="nx">onLeft</span><span class="p">:</span> <span class="p">(</span><span class="nx">left</span><span class="p">:</span> <span class="nx">L</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">R</span><span class="p">,</span>
+  <span class="nx">onRight</span><span class="p">:</span> <span class="p">(</span><span class="nx">right</span><span class="p">:</span> <span class="nx">A</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">R</span>
+<span class="p">):</span> <span class="nx">R</span> <span class="o">=&gt;</span> <span class="p">(</span><span class="nx">fa</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">Left</span><span class="dl">'</span> <span class="p">?</span> <span class="nx">onLeft</span><span class="p">(</span><span class="nx">fa</span><span class="p">.</span><span class="nx">left</span><span class="p">)</span> <span class="p">:</span> <span class="nx">onRight</span><span class="p">(</span><span class="nx">fa</span><span class="p">.</span><span class="nx">right</span><span class="p">))</span>
+
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">Either</code> type is similar to the <code class="language-plaintext highlighter-rouge">Option</code> type but it can hold more information about <em>why</em> our operation failed if it indeed does. Usually the <code class="language-plaintext highlighter-rouge">Left</code> value holds an error while the <code class="language-plaintext highlighter-rouge">Right</code> value holds a successfully retrieved value.</p>
+
+<p>Let’s again consider the fetch operation from the previous example now refactored (again we’ll defer implementation of the fetch function to another post) to return an <code class="language-plaintext highlighter-rouge">Either</code></p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// the new function signiture returning an Either </span>
+<span class="nx">declare</span> <span class="nx">fetchUsersFromAPI</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Either</span><span class="o">&lt;</span><span class="nx">string</span><span class="p">,</span> <span class="nx">User</span><span class="p">[]</span><span class="o">&gt;&gt;</span>
+
+<span class="kd">const</span> <span class="nx">newUsers</span><span class="p">:</span> <span class="nx">Either</span><span class="o">&lt;</span><span class="nx">string</span><span class="p">,</span> <span class="nx">User</span><span class="p">[]</span><span class="o">&gt;</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fetchUsersFromAPI</span><span class="p">();</span>
+
+<span class="nx">fold</span><span class="p">(</span>
+  <span class="nx">newUsers</span><span class="p">,</span>
+  <span class="p">(</span><span class="nx">m</span><span class="p">:</span> <span class="nx">string</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="s2">`Something went wrong </span><span class="p">${</span><span class="nx">m</span><span class="p">}</span><span class="s2">!`</span><span class="p">,</span>
+  <span class="p">(</span><span class="nx">users</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">newUser</span> <span class="k">of</span> <span class="nx">users</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">uploadUserBio</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>In the above example we have a <code class="language-plaintext highlighter-rouge">string</code> containing a message as our <code class="language-plaintext highlighter-rouge">Left</code> value in the event of an error. We could choose to implement this in anyway we want however. We could return an <code class="language-plaintext highlighter-rouge">Error</code> instance containing more detailed information about what went wrong. Regardless, as with the <code class="language-plaintext highlighter-rouge">Option</code> anyone who wants to use the newUsers object will need to account for the possibility that the fetch operation failed.</p>
+
+<h3 id="is-any-of-this-worth-the-hassle">Is any of this worth the hassle?</h3>
+
+<p>These are simple examples so far. It may not seem worth it to implement <code class="language-plaintext highlighter-rouge">Options</code> and <code class="language-plaintext highlighter-rouge">Eithers</code> when a simple <code class="language-plaintext highlighter-rouge">if</code> check could suffice. The point so far however is to understand that we have much to gain by treating certain classes of data as existing in a dual state (like a <a href="https://en.wikipedia.org/wiki/Quantum_superposition">superposition</a> in physics). Instead of pretending that a piece of data fetched from a remote API will always represent the data we want (oh if it were so) we can use abstractions like <code class="language-plaintext highlighter-rouge">Option</code> and <code class="language-plaintext highlighter-rouge">Either</code> such that the possibility that they don’t is considered as a matter of course. This will make our code not only more robust, but also easier to read and more fun to write.</p>
+
+<h3 id="further-reading">Further reading</h3>
+
+<p>In future posts I’ll explore more complex examples and how we can start implementing API fetching functions that use <code class="language-plaintext highlighter-rouge">Options</code>, <code class="language-plaintext highlighter-rouge">Eithers</code> and other FP abstractions we haven’t explored yet.</p>
+
+<p>This is a complex topic. Here are some resources I’ve found useful:</p>
+
+<ul>
+  <li><a href="https://dev.to/gcanti/series/680">Getting started with fp-ts</a></li>
+  <li><a href="https://mostly-adequate.gitbook.io/mostly-adequate-guide/">Mostly Adequate Guide to Functional Programming</a></li>
+  <li><a href="https://github.com/enricopolanski/functional-programming">Functional Programming in TypeScript</a></li>
+  <li><a href="https://rlee.dev/practical-guide-to-fp-ts-part-1">Practical Guide to Fp-ts</a></li>
+</ul>
+
+</div>
+</div>
+    </div>
+    <footer>
+      <p class="text-center text-xs mb-2 font-extralight text-gray-400">
+        Copyright 2022, Mepuka Kessy
+      </p>
+    </footer>
+  </body>
+</html>
