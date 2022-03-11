@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <title>Functional Programming Baby Steps Part Two</title>
+  </head>
+  <body
+    class="antialiased font-sans flex flex-col min-h-screen sm:min-w-full md:min-w-full lg:min-w-full"
+  >
+    <div class="max-w-screen-sm mx-auto px-4 flex-grow">
+      <nav
+        class="mt-4 border-b-2 border-t-2 border-dashed border-curiosity-dirt"
+      >
+        
+<div class="font-black text-4xl text-curiosity-dirt">mepuka kessy</div>
+<div class="mt-2.5 mb-2.5 mx-auto flex justify-start space-x-2">
+    
+    <div class="text-curiosity-dirt hover:text-curiosity-magenta">
+
+        <a href="/blog.html" >
+            Code
+        </a>
+    </div>
+        
+    <div class="text-curiosity-dirt hover:text-curiosity-magenta">
+
+        <a href="/about.html" >
+            About
+        </a>
+    </div>
+        
+</div>
+      </nav>
+      <div class="mt-10 text-curiosity-dirt"><h1 class="text-lg font-semibold">Functional Programming Baby Steps Part Two</h1>
+<p class="text-sm font-normal text-gray-500 my-2">
+  mepuka | 1 March 2022
+</p>
+
+<div class="prose mt-8"><p>In a <a href="https://dev.to/mkessy/functional-programming-baby-steps-options-and-eithers-1mjf">previous</a> post I introduced two type classes (actually they’re <a href="https://en.wikipedia.org/wiki/Monad_(functional_programming)">monads</a> but that’s not for now) the <code class="language-plaintext highlighter-rouge">Option</code> type and <code class="language-plaintext highlighter-rouge">Either</code> type. These types are extremely useful abstractions for dealing with operations that may fail. The former gives us no information about the failure just an empty <code class="language-plaintext highlighter-rouge">None</code> while the later gives us a <code class="language-plaintext highlighter-rouge">Left</code> type containing some information about the failure (like an error message.)</p>
+
+<h5 id="the-option-and-either-types">The Option and Either Types</h5>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">type</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span> <span class="o">=</span>
+  <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">None</span><span class="dl">'</span> <span class="p">}</span> <span class="c1">// our operation failed</span>
+  <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Some</span><span class="dl">'</span><span class="p">;</span> <span class="nl">value</span><span class="p">:</span> <span class="nx">A</span> <span class="p">}</span> <span class="c1">// our operation succeeded and we have a value of type A</span>
+
+<span class="nx">type</span> <span class="nx">Either</span><span class="o">&lt;</span><span class="nx">L</span><span class="p">,</span> <span class="nx">A</span><span class="o">&gt;</span> <span class="o">=</span>
+  <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Left</span><span class="dl">'</span><span class="p">;</span> <span class="nl">left</span><span class="p">:</span> <span class="nx">L</span> <span class="p">}</span> <span class="c1">// holding a failure</span>
+  <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Right</span><span class="dl">'</span><span class="p">;</span> <span class="nl">right</span><span class="p">:</span> <span class="nx">A</span> <span class="p">}</span> <span class="c1">// holding a success</span>
+</code></pre></div></div>
+
+<p>Ok these are useful but are hardly a comprehensive model for the types of data and operations we might encounter while web programming. One ubiquitous type of operation that cannot be avoided are those that are not synchronous – an asynchronous operation. This could be an operation fetching a webpage, an operation connecting to a database, or even a series of synchronous operations that are resource intensive and may take awhile to complete.</p>
+
+<p>In TypeScript/JavaScript we have an abstraction that deals with such operations called a Promise. As described in the MDN web docs:</p>
+
+<blockquote>
+  <p>The <code class="language-plaintext highlighter-rouge">Promise</code> object represents the eventual completion (or failure) of an asynchronous operation and its resulting value.</p>
+</blockquote>
+
+<p>They also provide a handy diagram to help think through the control flow of a Promise and its differing states.</p>
+
+<p><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4n9xnpr6wg4533qb9pdm.png" alt="Flow chart for a typical Promise" /></p>
+
+<p>As you can see there is a lot going on here. What’s more is you can chain promises together so imagine pasting this same diagram everywhere you see a <code class="language-plaintext highlighter-rouge">.then.</code> This complexity can be difficult to work through especially as the <code class="language-plaintext highlighter-rouge">Promise</code> chain grows and you start to encounter nested call backs. In extreme cases it can lead to what’s known as <a href="https://www.google.com/search?q=call+back+hell&amp;oq=call+back+hell&amp;aqs=chrome..69i57j0i10i512l3j0i10i22i30l4j0i390l2.2338j0j7&amp;sourceid=chrome&amp;ie=UTF-8">callback hell</a>.</p>
+
+<p>For this reason <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await</a> syntax was introduced. It helps avoid <code class="language-plaintext highlighter-rouge">Promise</code> chain hell and makes our code look more synchronous. Unfortunately we still run into the problem of having to constantly <code class="language-plaintext highlighter-rouge">await</code> promise-based values before we can operate on them. Further more those awaited Promises could reject and so we need to explicitly wrap them in <code class="language-plaintext highlighter-rouge">Try Catch Finally</code> blocks or chain <code class="language-plaintext highlighter-rouge">.catch</code> and <code class="language-plaintext highlighter-rouge">.finally</code> callbacks.</p>
+
+<p>But there’s another way we can think about asynchronous operations that might help us escape some of the complexity of Promises.</p>
+
+<h5 id="the-task-type">The <code class="language-plaintext highlighter-rouge">Task</code> Type</h5>
+<p>In <a href="https://gcanti.github.io/fp-ts/">fp-ts</a> a <code class="language-plaintext highlighter-rouge">Task</code> is defined as</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Task</span><span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="p">():</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">Task&lt;A&gt;</code> represents an asynchronous computation that yields a value of type A and <strong>never fails.</strong> And while this is just a wrapped <code class="language-plaintext highlighter-rouge">Promise</code> the stipulation that this operation can never fail is a subtly powerful contract if we adhere to it. Knowing that it won’t fail means that <code class="language-plaintext highlighter-rouge">Task&lt;Whatever&gt;</code> is always going to return a <code class="language-plaintext highlighter-rouge">Whatever</code>.</p>
+
+<p>Now how useful is this really? Unfortunately in the real world we’re often working with operations that fail, especially those that are asynchronous. So how do we represent <em>async operations that <strong>can</strong> fail?</em> Well we know how to represent async operations with <code class="language-plaintext highlighter-rouge">Task</code> and we know how to represent operations that can yield a failure value with <code class="language-plaintext highlighter-rouge">Either</code>.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">TaskEither</span><span class="o">&lt;</span><span class="nx">E</span><span class="p">,</span> <span class="nx">A</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="nx">Task</span><span class="o">&lt;</span><span class="nx">Either</span><span class="o">&lt;</span><span class="nx">E</span><span class="p">,</span> <span class="nx">A</span><span class="o">&gt;&gt;</span> <span class="p">{}</span>
+</code></pre></div></div>
+<p>So a <code class="language-plaintext highlighter-rouge">TaskEither</code> is just a <code class="language-plaintext highlighter-rouge">Task</code> that is <em>guaranteed</em> to yield an <code class="language-plaintext highlighter-rouge">Either</code> value. In other words it is a <code class="language-plaintext highlighter-rouge">Promise</code> with only a resolve path. Instead of rejecting we store the failure value in the <code class="language-plaintext highlighter-rouge">Left</code> type of the <code class="language-plaintext highlighter-rouge">Either</code> sum type.</p>
+
+<p>Initially this concept was confusing to me as it seemed like a bit of hack to just ignore an entire part of the <code class="language-plaintext highlighter-rouge">Promise</code> API. But if we look at the flow diagram above it’s clear how simplifying this abstraction can be. We no longer have to deal with the Reject branch. Instead values corresponding to rejection are contained within the <code class="language-plaintext highlighter-rouge">Either</code> type.</p>
+
+<p>Let’s go back to the example from the previous post. We have an API that returns a list of Users.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">// type declaration</span>
+<span class="nx">declare</span> <span class="nx">fetchUsersFromAPI</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">User</span><span class="p">[]</span><span class="o">&gt;</span>
+
+<span class="c1">// possible implementation using Axios</span>
+<span class="kd">function</span> <span class="nx">fetchUsersFromApi</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">axios</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">https://api.com/users</span><span class="dl">'</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">newUsers</span><span class="p">:</span> <span class="nx">User</span><span class="p">[]</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fetchUsersFromAPI</span><span class="p">();</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">newUser</span> <span class="k">of</span> <span class="nx">newUsers</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">uploadUserBio</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="c1">// do stuff</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>As we discussed in the previous post this implementation could blow up since we’re not catching the promise rejection and even if it doesn’t reject the <code class="language-plaintext highlighter-rouge">newUsers</code> array could be null.</p>
+
+<p>Let’s refactor this and wrap our <code class="language-plaintext highlighter-rouge">fetchUsersFromAPI</code> in a <code class="language-plaintext highlighter-rouge">TaskEither</code>. Fp-ts provides us some handy helper functions just for this task. One such function is <code class="language-plaintext highlighter-rouge">tryCatchK</code> in the <code class="language-plaintext highlighter-rouge">TaskEither</code> module.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">// Converts a function returning a Promise to one returning a TaskEither</span>
+
+<span class="nx">declare</span> <span class="kd">const</span> <span class="nx">tryCatchK</span><span class="p">:</span> <span class="o">&lt;</span><span class="nx">E</span><span class="p">,</span> <span class="nx">A</span> <span class="kd">extends</span> <span class="nx">readonly</span> <span class="nx">unknown</span><span class="p">[],</span> <span class="nx">B</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="nx">f</span><span class="p">:</span> <span class="p">(...</span><span class="nx">a</span><span class="p">:</span> <span class="nx">A</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">B</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="nx">onRejected</span><span class="p">:</span> <span class="p">(</span><span class="nx">reason</span><span class="p">:</span> <span class="nx">unknown</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">E</span>
+<span class="p">)</span> <span class="o">=&gt;</span> <span class="p">(...</span><span class="nx">a</span><span class="p">:</span> <span class="nx">A</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">TaskEither</span><span class="o">&lt;</span><span class="nx">E</span><span class="p">,</span> <span class="nx">B</span><span class="o">&gt;</span>
+
+<span class="kd">const</span> <span class="nx">fetchUsersTE</span> <span class="o">=</span> <span class="nx">tryCatchK</span><span class="p">(</span>
+  <span class="nx">fetchUsersFromAPI</span><span class="p">,</span>
+  <span class="p">(</span><span class="nx">reason</span><span class="p">:</span> <span class="nx">unknown</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">String</span><span class="p">(</span><span class="nx">reason</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="c1">// const fetchUsersTE: () =&gt; TaskEither&lt;string, User[]&gt;</span>
+</code></pre></div></div>
+<p>Rejoice! With this simple change we do not need to handle Promise rejection with clunky <code class="language-plaintext highlighter-rouge">try catch</code> blocks.</p>
+
+<p>Remember a <code class="language-plaintext highlighter-rouge">TaskEither&lt;E, A&gt;</code> is just an alias for <code class="language-plaintext highlighter-rouge">Task&lt;Either&lt;E,A&gt;&gt;</code>. And we know that  <code class="language-plaintext highlighter-rouge">Task&lt;A&gt;: () =&gt; Promise&lt;A&gt;</code> so <code class="language-plaintext highlighter-rouge">TaskEither&lt;E,A&gt;: () =&gt; Promise&lt;Either&lt;E, A&gt;&gt;</code> That is to say that our <code class="language-plaintext highlighter-rouge">fetchUsersTE</code> function is a function that returns <em>another function</em> that returns a <code class="language-plaintext highlighter-rouge">Promise</code> containing an <code class="language-plaintext highlighter-rouge">Either</code>. Again recall that the contract we signed by using <code class="language-plaintext highlighter-rouge">Task</code> ensures that the promise it returns will <em>never</em> reject. So we can safely ‘unwrap’ our promise (no try catch block needed) and get to the juicy <code class="language-plaintext highlighter-rouge">Either</code> within. Then returning to the previous code we can <code class="language-plaintext highlighter-rouge">fold</code> the <code class="language-plaintext highlighter-rouge">Either</code> and handle both <code class="language-plaintext highlighter-rouge">Left</code> and <code class="language-plaintext highlighter-rouge">Right</code> cases.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">usersTaskEither</span> <span class="o">=</span> <span class="nx">fetchUsers</span><span class="p">();</span>
+<span class="kd">const</span> <span class="nx">usersEither</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">usersTaskEither</span><span class="p">();</span> 
+<span class="c1">// Either&lt;string, Users[]&gt; </span>
+<span class="c1">// The Task contract ensure this promise will never reject</span>
+
+<span class="nx">fold</span><span class="p">(</span>
+  <span class="nx">usersEither</span><span class="p">,</span>
+  <span class="p">(</span><span class="nx">error</span><span class="p">:</span> <span class="nx">string</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="s2">`Something went wrong </span><span class="p">${</span><span class="nx">error</span><span class="p">}</span><span class="s2">!`</span><span class="p">,</span>
+  <span class="p">(</span><span class="nx">users</span><span class="p">:</span> <span class="nx">Users</span><span class="p">[])</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">newUser</span> <span class="k">of</span> <span class="nx">users</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">uploadUserBio</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">bio</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+
+</code></pre></div></div>
+
+<h5 id="final-notes-and-next-steps">Final Notes and Next Steps</h5>
+
+<p>So there are some caveats. For one we need to be careful when we wrap promises in TaskEither. Referencing the signature for <code class="language-plaintext highlighter-rouge">tryCatch</code> below there are two things to consider. First, the function <code class="language-plaintext highlighter-rouge">f</code> should never throw an error since it won’t be caught. Any error handling should be abstracted away inside this function. Second, we need to ensure we know when the <code class="language-plaintext highlighter-rouge">Promise</code> returned by <code class="language-plaintext highlighter-rouge">f</code> rejects. In our example using the Axios API it will reject for any error HTTP status codes (400-500+). This behavior might be desirable or not. For example it is often the case that we want any non <code class="language-plaintext highlighter-rouge">200</code> response to be considered an error and put in the <code class="language-plaintext highlighter-rouge">Left</code> of the <code class="language-plaintext highlighter-rouge">Either</code>. Axios provides a config option to ensure this behavior. But you should always be clear under what conditions the <code class="language-plaintext highlighter-rouge">Promise</code> will reject.</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">declare</span> <span class="kd">const</span> <span class="nx">tryCatchK</span><span class="p">:</span> <span class="o">&lt;</span><span class="nx">E</span><span class="p">,</span> <span class="nx">A</span> <span class="kd">extends</span> <span class="nx">readonly</span> <span class="nx">unknown</span><span class="p">[],</span> <span class="nx">B</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="nx">f</span><span class="p">:</span> <span class="p">(...</span><span class="nx">a</span><span class="p">:</span> <span class="nx">A</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">B</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="nx">onRejected</span><span class="p">:</span> <span class="p">(</span><span class="nx">reason</span><span class="p">:</span> <span class="nx">unknown</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">E</span>
+<span class="p">)</span> <span class="o">=&gt;</span> <span class="p">(...</span><span class="nx">a</span><span class="p">:</span> <span class="nx">A</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">TaskEither</span><span class="o">&lt;</span><span class="nx">E</span><span class="p">,</span> <span class="nx">B</span><span class="o">&gt;</span>
+
+</code></pre></div></div>
+
+<p>Finally, what can we actually do with this <code class="language-plaintext highlighter-rouge">TaskEither</code>? Is it just a temporary container to simplify Promises? In the beginning of this post I mentioned that it is a monad. While this term has specific mathematical meaning, for practical purposes we only need to know that this means it implements an interface comprised of a number of functions that allow us to work and manipulate <code class="language-plaintext highlighter-rouge">TaskEither</code> types.</p>
+
+<p>For example, say I wanted to compute the length of the returned <code class="language-plaintext highlighter-rouge">Users</code> array. I could extract the value from the <code class="language-plaintext highlighter-rouge">TaskEither</code> by running the promise, folding the <code class="language-plaintext highlighter-rouge">Either</code> and finally accessing the <code class="language-plaintext highlighter-rouge">length</code> property on the array. This is a lot of work. Instead as a monad <code class="language-plaintext highlighter-rouge">TaskEither</code> implements a function called <code class="language-plaintext highlighter-rouge">map</code>. <code class="language-plaintext highlighter-rouge">map</code> is a function that takes a function from <code class="language-plaintext highlighter-rouge">A</code> to <code class="language-plaintext highlighter-rouge">B</code> and returns another function from <code class="language-plaintext highlighter-rouge">TaskEither&lt;E, A&gt;</code> to <code class="language-plaintext highlighter-rouge">TaskEither&lt;E, B&gt;</code>.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">map</span><span class="p">:</span> <span class="o">&lt;</span><span class="nx">A</span><span class="p">,</span> <span class="nx">B</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">f</span><span class="p">:</span> <span class="p">(</span><span class="nx">a</span><span class="p">:</span> <span class="nx">A</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">B</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="o">&lt;</span><span class="nx">E</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">fa</span><span class="p">:</span> <span class="nx">TaskEither</span><span class="o">&lt;</span><span class="nx">E</span><span class="p">,</span> <span class="nx">A</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">TaskEither</span><span class="o">&lt;</span><span class="nx">E</span><span class="p">,</span> <span class="nx">B</span><span class="o">&gt;</span>
+
+<span class="kd">const</span> <span class="nx">getLength</span> <span class="o">=</span> <span class="nx">map</span><span class="p">((</span><span class="nx">users</span><span class="p">:</span> <span class="nx">User</span><span class="p">[])</span> <span class="o">=&gt;</span> <span class="nx">users</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">usersLengthTE</span> <span class="o">=</span> <span class="nx">getLength</span><span class="p">(</span><span class="nx">usersTE</span><span class="p">);</span>
+
+<span class="c1">// const usersLengthTE: TE.TaskEither&lt;string, number&gt;</span>
+
+</code></pre></div></div>
+<p>Now we have a function that returns a promise that either returns an error string or the length of the users. All this without ever actually touching the Promise API. Hopefully the gears are starting to spin and you can appreciate how powerful this could be.</p>
+
+<p>We’ve only scratched the surface and in future posts we’ll start exploring all the functions implemented by the <code class="language-plaintext highlighter-rouge">monad</code> interface and why it is such a powerful concept. If you can’t wait that long (I don’t blame you) see below for more in-depth discussion.</p>
+
+<ul>
+  <li><a href="https://dev.to/gcanti/series/680">Getting started with fp-ts</a></li>
+  <li><a href="https://mostly-adequate.gitbook.io/mostly-adequate-guide/">Mostly Adequate Guide to Functional Programming</a></li>
+  <li><a href="https://github.com/enricopolanski/functional-programming">Functional Programming in TypeScript</a></li>
+  <li><a href="https://rlee.dev/practical-guide-to-fp-ts-part-1">Practical Guide to Fp-ts</a></li>
+</ul>
+</div>
+</div>
+    </div>
+    <footer>
+      <p class="text-center text-xs mb-2 font-extralight text-gray-400">
+        Copyright 2022, Mepuka Kessy
+      </p>
+    </footer>
+  </body>
+</html>

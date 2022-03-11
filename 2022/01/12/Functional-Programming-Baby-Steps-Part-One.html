@@ -41,7 +41,7 @@
 
 <div class="prose mt-8"><p>One of the first issues I ran into as I began my journey into the world of TypeScript was the annoying issue of <a href="https://dev.to/jamesmh/unhealthy-code-null-checks-everywhere-2720">null checks</a>. On one hand the TypeScript compiler is reminding you of something important: “You might encounter a runtime error if you try and do something with this possibly null value.” On the other hand it can lead to some really ugly code where we need nested conditionals to ensure that the data we want to operate on actually exists as we expect it to.</p>
 
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">User</span> <span class="p">{</span> 
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">User</span> <span class="p">{</span> 
   <span class="nl">id</span><span class="p">:</span> <span class="nx">number</span><span class="p">;</span>
   <span class="nl">name</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
   <span class="nl">bio</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
@@ -69,7 +69,7 @@
 
 <p>This is ugly, hard to read, and unsafe (eventually we’ll make a mistake or forget a conditional and something will blow up.) Now consider that this problem becomes even worse when performing routine operations such as fetching data from a remote API. What if we needed to fetch a list of users and process them in some way? Fetching remote data is an asynchronous task that is not guaranteed succeed. So now in addition to all the null checking we’ll need to check whether our fetch operation was even successful or if it returned an error.</p>
 
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// this code may blow up since not only may the fetch operation</span>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// this code may blow up since not only may the fetch operation</span>
 <span class="c1">// fail but it could succeed and return a null newUsers array </span>
 <span class="kd">const</span> <span class="nx">newUsers</span><span class="p">:</span> <span class="nx">User</span><span class="p">[]</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fetchUsersFromAPI</span><span class="p">();</span>
 <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">newUser</span> <span class="k">of</span> <span class="nx">newUsers</span><span class="p">)</span> <span class="p">{</span>
@@ -86,14 +86,14 @@
 <h3 id="the-option-type">The <code class="language-plaintext highlighter-rouge">Option</code> type</h3>
 <p>The option types helps us abstract the common case in which a computation may fail (or return null) <em>or</em> return a value of type A. In fp-ts it is represented by the sum type:</p>
 
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">type</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span> <span class="o">=</span>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">type</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span> <span class="o">=</span>
   <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">None</span><span class="dl">'</span> <span class="p">}</span> <span class="c1">// our operation failed</span>
   <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Some</span><span class="dl">'</span><span class="p">;</span> <span class="nl">value</span><span class="p">:</span> <span class="nx">A</span> <span class="p">}</span> <span class="c1">// our operation succeeded and we have a value of type A</span>
 
 </code></pre></div></div>
 <p>Fp-ts provides us with a number of built-in methods for operating with this new type.</p>
 
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// construct for a null or none type</span>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// construct for a null or none type</span>
 <span class="kd">const</span> <span class="nx">none</span><span class="p">:</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="nx">never</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">None</span><span class="dl">'</span> <span class="p">}</span>
 <span class="c1">//constructor for a value that actually exists</span>
 <span class="kd">const</span> <span class="nx">some</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">value</span><span class="p">:</span> <span class="nx">A</span><span class="p">):</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="nx">A</span><span class="o">&gt;</span> <span class="o">=&gt;</span> <span class="p">({</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Some</span><span class="dl">'</span><span class="p">,</span> <span class="nx">value</span> <span class="p">})</span>
@@ -104,7 +104,7 @@
 
 <p>Wrapping a value in an <code class="language-plaintext highlighter-rouge">Option</code> forces us to deal with the case in which the value doesn’t exist or is not what we want.</p>
 
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// if our API had the following signature </span>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// if our API had the following signature </span>
 <span class="c1">// (we'll learn later about how to implement this)</span>
 <span class="nx">declare</span> <span class="nx">fetchUsersFromAPI</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Option</span><span class="o">&lt;</span><span class="nx">User</span><span class="p">[]</span><span class="o">&gt;&gt;</span>
 
@@ -129,7 +129,7 @@
 
 <h3 id="the-either-type">The <code class="language-plaintext highlighter-rouge">Either</code> type</h3>
 
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">type</span> <span class="nx">Either</span><span class="o">&lt;</span><span class="nx">L</span><span class="p">,</span> <span class="nx">A</span><span class="o">&gt;</span> <span class="o">=</span>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">type</span> <span class="nx">Either</span><span class="o">&lt;</span><span class="nx">L</span><span class="p">,</span> <span class="nx">A</span><span class="o">&gt;</span> <span class="o">=</span>
   <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Left</span><span class="dl">'</span><span class="p">;</span> <span class="nl">left</span><span class="p">:</span> <span class="nx">L</span> <span class="p">}</span> <span class="c1">// holding a failure</span>
   <span class="o">|</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Right</span><span class="dl">'</span><span class="p">;</span> <span class="nl">right</span><span class="p">:</span> <span class="nx">A</span> <span class="p">}</span> <span class="c1">// holding a success</span>
 
@@ -145,7 +145,7 @@
 
 <p>Let’s again consider the fetch operation from the previous example now refactored (again we’ll defer implementation of the fetch function to another post) to return an <code class="language-plaintext highlighter-rouge">Either</code></p>
 
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// the new function signiture returning an Either </span>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// the new function signiture returning an Either </span>
 <span class="nx">declare</span> <span class="nx">fetchUsersFromAPI</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Either</span><span class="o">&lt;</span><span class="nx">string</span><span class="p">,</span> <span class="nx">User</span><span class="p">[]</span><span class="o">&gt;&gt;</span>
 
 <span class="kd">const</span> <span class="nx">newUsers</span><span class="p">:</span> <span class="nx">Either</span><span class="o">&lt;</span><span class="nx">string</span><span class="p">,</span> <span class="nx">User</span><span class="p">[]</span><span class="o">&gt;</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fetchUsersFromAPI</span><span class="p">();</span>
